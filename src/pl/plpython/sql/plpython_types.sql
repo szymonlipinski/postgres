@@ -90,10 +90,11 @@ plpy.info(x, type(x))
 return x
 $$ LANGUAGE plpythonu;
 
-/* The current implementation converts numeric to float. */
+/* The current implementation converts numeric to decimal.Decimal. */
 SELECT * FROM test_type_conversion_numeric(100);
 SELECT * FROM test_type_conversion_numeric(-100);
 SELECT * FROM test_type_conversion_numeric(5000000000.5);
+SELECT * FROM test_type_conversion_numeric(1234567890.0987654321);
 SELECT * FROM test_type_conversion_numeric(null);
 
 
