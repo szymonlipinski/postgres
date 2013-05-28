@@ -516,7 +516,7 @@ PLyFloat_FromFloat8(PLyDatumToOb *arg, Datum d)
 {
 	return PyFloat_FromDouble(DatumGetFloat8(d));
 }
-        
+
 static PyObject *
 PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d)
 {
