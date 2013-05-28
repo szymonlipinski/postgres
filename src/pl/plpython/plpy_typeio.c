@@ -18,6 +18,7 @@
 #include "utils/memutils.h"
 #include "utils/syscache.h"
 #include "utils/typcache.h"
+#include "utils/numeric.h"
 
 #include "plpython.h"
 
@@ -26,6 +27,7 @@
 #include "plpy_elog.h"
 #include "plpy_main.h"
 
+extern PyObject *PLy_decimal_ctor_global;
 
 /* I/O function caching */
 static void PLy_input_datum_func2(PLyDatumToOb *arg, Oid typeOid, HeapTuple typeTup);
@@ -35,7 +37,7 @@ static void PLy_output_datum_func2(PLyObToDatum *arg, HeapTuple typeTup);
 static PyObject *PLyBool_FromBool(PLyDatumToOb *arg, Datum d);
 static PyObject *PLyFloat_FromFloat4(PLyDatumToOb *arg, Datum d);
 static PyObject *PLyFloat_FromFloat8(PLyDatumToOb *arg, Datum d);
-static PyObject *PLyFloat_FromNumeric(PLyDatumToOb *arg, Datum d);
+static PyObject *PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d);
 static PyObject *PLyInt_FromInt16(PLyDatumToOb *arg, Datum d);
 static PyObject *PLyInt_FromInt32(PLyDatumToOb *arg, Datum d);
 static PyObject *PLyLong_FromInt64(PLyDatumToOb *arg, Datum d);
@@ -450,7 +452,7 @@ PLy_input_datum_func2(PLyDatumToOb *arg, Oid typeOid, HeapTuple typeTup)
 			arg->func = PLyFloat_FromFloat8;
 			break;
 		case NUMERICOID:
-			arg->func = PLyFloat_FromNumeric;
+			arg->func = PLyDecimal_FromNumeric;
 			break;
 		case INT2OID:
 			arg->func = PLyInt_FromInt16;
@@ -514,18 +516,14 @@ PLyFloat_FromFloat8(PLyDatumToOb *arg, Datum d)
 {
 	return PyFloat_FromDouble(DatumGetFloat8(d));
 }
-
+        
 static PyObject *
-PLyFloat_FromNumeric(PLyDatumToOb *arg, Datum d)
+PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d)
 {
-	/*
-	 * Numeric is cast to a PyFloat: This results in a loss of precision Would
-	 * it be better to cast to PyString?
-	 */
-	Datum		f = DirectFunctionCall1(numeric_float8, d);
-	double		x = DatumGetFloat8(f);
-
-	return PyFloat_FromDouble(x);
+	char *x = DatumGetCString(DirectFunctionCall1(numeric_out, d));
+	PyObject *pvalue = PyString_FromString(x);
+	PyObject *value = PyObject_CallFunctionObjArgs(PLy_decimal_ctor_global, pvalue, NULL);
+	return value;
 }
 
 static PyObject *
