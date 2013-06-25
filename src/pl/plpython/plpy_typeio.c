@@ -520,9 +520,12 @@ PLyFloat_FromFloat8(PLyDatumToOb *arg, Datum d)
 static PyObject *
 PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d)
 {
-	char *x = DatumGetCString(DirectFunctionCall1(numeric_out, d));
-	PyObject *pvalue = PyString_FromString(x);
-	PyObject *value = PyObject_CallFunctionObjArgs(PLy_decimal_ctor_global, pvalue, NULL);
+	char *x;
+	PyObject *pvalue, *value;
+
+	x = DatumGetCString(DirectFunctionCall1(numeric_out, d));
+	pvalue = PyString_FromString(x);
+	value = PyObject_CallFunctionObjArgs(PLy_decimal_ctor_global, pvalue, NULL);
 	return value;
 }
 

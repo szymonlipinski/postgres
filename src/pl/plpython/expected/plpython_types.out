@@ -249,6 +249,14 @@ CONTEXT:  PL/Python function "test_type_conversion_numeric"
         1234567890.0987654321
 (1 row)
 
+SELECT * FROM test_type_conversion_numeric(-1234567890.0987654321);
+INFO:  (Decimal('-1234567890.0987654321'), <class 'decimal.Decimal'>)
+CONTEXT:  PL/Python function "test_type_conversion_numeric"
+ test_type_conversion_numeric 
+------------------------------
+       -1234567890.0987654321
+(1 row)
+
 SELECT * FROM test_type_conversion_numeric(null);
 INFO:  (None, <type 'NoneType'>)
 CONTEXT:  PL/Python function "test_type_conversion_numeric"

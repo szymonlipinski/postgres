@@ -308,10 +308,16 @@ $$ LANGUAGE plpythonu;
       </para>
      </listitem>
 
+	 <listitem>
+      <para>
+       PostgreSQL <type>real</type> and <type>double</type> are converted to
+       Python <type>float</type>.
+      </para>
+     </listitem>
+
      <listitem>
       <para>
-       PostgreSQL <type>real</type>, <type>double</type>,
-       and <type>numeric</type> are converted to
+       PostgreSQL <type>numeric</type> is converted to
        Python <type>Decimal</type>. This type is imported from
        <literal>decimal.Decimal</literal>.
       </para>

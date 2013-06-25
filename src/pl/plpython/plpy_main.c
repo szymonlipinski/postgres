@@ -139,7 +139,7 @@ void
 PLy_init_interp(void)
 {
 	static PyObject *PLy_interp_safe_globals = NULL;
-	PyObject   *mainmod;
+	PyObject   *mainmod, *decimal, *decimal_dict;
 
 	mainmod = PyImport_AddModule("__main__");
 	if (mainmod == NULL || PyErr_Occurred())
@@ -150,23 +150,17 @@ PLy_init_interp(void)
 	if (PLy_interp_safe_globals == NULL)
 		PLy_elog(ERROR, "could not create globals");
 	PyDict_SetItemString(PLy_interp_globals, "GD", PLy_interp_safe_globals);
+	
+	Py_DECREF(mainmod);
 
 	if (PLy_interp_globals == NULL || PyErr_Occurred())
 		PLy_elog(ERROR, "could not initialize globals");
 
-	PyObject *decimal = PyImport_ImportModule("decimal");
+	decimal = PyImport_ImportModule("decimal");
 	if (decimal == NULL)
 		PLy_elog(ERROR, "could not import module 'decimal'");
 
-	PyObject *decimal_dict = PyModule_GetDict(decimal);
-	if (decimal_dict == NULL)
-		PLy_elog(ERROR, "could not get decimal dict from imported module");
-
-	PLy_decimal_ctor_global = PyDict_GetItemString(decimal_dict, "Decimal");
-	if (PLy_decimal_ctor_global == NULL || !PyCallable_Check(PLy_decimal_ctor_global))
-		PLy_elog(ERROR, "could not get decimal consctructor for Decimal type");
-
-	Py_DECREF(mainmod);
+	decimal_dict = PyModule_GetDict(decimal);
 }
 
 Datum
