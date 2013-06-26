@@ -77,9 +77,6 @@ static const int plpython_python_version = PY_MAJOR_VERSION;
 /* initialize global variables */
 PyObject   *PLy_interp_globals = NULL;
 
-/* global pointer to decimal.Decimal costructor */
-PyObject   *PLy_decimal_ctor_global = NULL;
-
 /* this doesn't need to be global; use PLy_current_execution_context() */
 static PLyExecutionContext *PLy_execution_contexts = NULL;
 
