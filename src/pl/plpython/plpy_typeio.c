@@ -521,7 +521,22 @@ static PyObject *
 PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d)
 {
 	char *x;
-	PyObject *pvalue, *value;
+	PyObject *pvalue, *value, *decimal;
+	static PyObject *decimal_dict;
+
+	/* Try to import cdecimal, if it doesnt exist, fallback to decimal */
+	decimal = PyImport_ImportModule("cdecimal");
+	if (decimal == NULL)
+	{
+		PyErr_Clear();
+		decimal = PyImport_ImportModule("decimal");
+	}
+	if (decimal == NULL)
+		PLy_elog(ERROR, "could not import module 'decimal'");
+
+	decimal_dict = PyModule_GetDict(decimal);
+	PLy_decimal_ctor_global = PyDict_GetItemString(decimal_dict, "Decimal");
+	Py_DECREF(decimal_dict);
 
 	x = DatumGetCString(DirectFunctionCall1(numeric_out, d));
 	pvalue = PyString_FromString(x);

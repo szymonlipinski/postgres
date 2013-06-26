@@ -139,7 +139,7 @@ void
 PLy_init_interp(void)
 {
 	static PyObject *PLy_interp_safe_globals = NULL;
-	PyObject   *mainmod, *decimal, *decimal_dict;
+	PyObject   *mainmod;
 
 	mainmod = PyImport_AddModule("__main__");
 	if (mainmod == NULL || PyErr_Occurred())
@@ -155,19 +155,6 @@ PLy_init_interp(void)
 
 	if (PLy_interp_globals == NULL || PyErr_Occurred())
 		PLy_elog(ERROR, "could not initialize globals");
-	/* Try to import cdecimal, if it doesnt exist, fallback to decimal */
-	decimal = PyImport_ImportModule("cdecimal");
-	if (decimal == NULL)
-	{
-		PyErr_Clear();
-		decimal = PyImport_ImportModule("decimal");
-	}
-	if (decimal == NULL)
-		PLy_elog(ERROR, "could not import module 'decimal'");
-
-	decimal_dict = PyModule_GetDict(decimal);
-	PLy_decimal_ctor_global = PyDict_GetItemString(decimal_dict, "Decimal");
-	Py_DECREF(decimal_dict);
 }
 
 Datum
