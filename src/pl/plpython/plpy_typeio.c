@@ -27,8 +27,6 @@
 #include "plpy_elog.h"
 #include "plpy_main.h"
 
-extern PyObject *PLy_decimal_ctor_global;
-
 /* I/O function caching */
 static void PLy_input_datum_func2(PLyDatumToOb *arg, Oid typeOid, HeapTuple typeTup);
 static void PLy_output_datum_func2(PLyObToDatum *arg, HeapTuple typeTup);
@@ -521,11 +519,11 @@ static PyObject *
 PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d)
 {
 	char *x;
-	PyObject *pvalue, *value, *decimal;
-	static PyObject *decimal_dict;
+	PyObject *pvalue, *value, *decimal, *decimal_dict;
+	static PyObject *decimal_ctor;
 
 	/* Try to import cdecimal, if it doesnt exist, fallback to decimal */
-	if (decimal_dict == NULL)
+	if (decimal_ctor == NULL)
 	{
 		decimal = PyImport_ImportModule("cdecimal");
 		if (decimal == NULL)
@@ -537,13 +535,13 @@ PLyDecimal_FromNumeric(PLyDatumToOb *arg, Datum d)
 			PLy_elog(ERROR, "could not import module 'decimal'");
 
 		decimal_dict = PyModule_GetDict(decimal);
-		PLy_decimal_ctor_global = PyDict_GetItemString(decimal_dict, "Decimal");
+		decimal_ctor = PyDict_GetItemString(decimal_dict, "Decimal");
 		Py_DECREF(decimal_dict);
 	}
 
 	x = DatumGetCString(DirectFunctionCall1(numeric_out, d));
 	pvalue = PyString_FromString(x);
-	value = PyObject_CallFunctionObjArgs(PLy_decimal_ctor_global, pvalue, NULL);
+	value = PyObject_CallFunctionObjArgs(decimal_ctor, pvalue, NULL);
 	return value;
 }
 
