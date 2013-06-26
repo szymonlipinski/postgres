@@ -318,8 +318,9 @@ $$ LANGUAGE plpythonu;
      <listitem>
       <para>
        PostgreSQL <type>numeric</type> is converted to
-       Python <type>Decimal</type>. This type is imported from
-       <literal>decimal.Decimal</literal>.
+       Python <type>Decimal</type>. This type is imported from 
+	   <literal>cdecimal</literal> package if it is available. If cdecimal
+	   cannot be used, then <literal>decimal.Decimal</literal> will be used.
       </para>
      </listitem>
 
