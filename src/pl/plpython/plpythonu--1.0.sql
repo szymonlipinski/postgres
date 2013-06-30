@@ -8,4 +8,4 @@
 
 CREATE PROCEDURAL LANGUAGE plpythonu;
 
-COMMENT ON PROCEDURAL LANGUAGE plpythonu IS 'PL/PythonU untrusted procedural language';
+COMMENT ON PROCEDURAL LANGUAGE plpythonu IS 'PL/Pythonu untrusted procedural language';

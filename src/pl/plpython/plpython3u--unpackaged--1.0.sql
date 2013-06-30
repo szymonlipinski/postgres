@@ -2,6 +2,6 @@
 
 ALTER EXTENSION plpython3u ADD PROCEDURAL LANGUAGE plpython3u;
 -- ALTER ADD LANGUAGE doesn't pick up the support functions, so we have to.
-ALTER EXTENSION plpython3u ADD FUNCTION plpython3_call_handler();
-ALTER EXTENSION plpython3u ADD FUNCTION plpython3_inline_handler(internal);
-ALTER EXTENSION plpython3u ADD FUNCTION plpython3_validator(oid);
+ALTER EXTENSION plpython3u ADD FUNCTION plpython3u_call_handler();
+ALTER EXTENSION plpython3u ADD FUNCTION plpython3u_inline_handler(internal);
+ALTER EXTENSION plpython3u ADD FUNCTION plpython3u_validator(oid);

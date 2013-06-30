@@ -34,18 +34,30 @@
 
 #if PY_MAJOR_VERSION >= 3
 /* Use separate names to avoid clash in pg_pltemplate */
-#define plpython_validator plpython3_validator
-#define plpython_call_handler plpython3_call_handler
-#define plpython_inline_handler plpython3_inline_handler
+#define plpythonu_validator plpython3u_validator
+#define plpythonu_call_handler plpython3u_call_handler
+#define plpythonu_inline_handler plpython3u_inline_handler
+
+//#define plpython_validator plpython3_validator
+//#define plpython_call_handler plpython3_call_handler
+//#define plpython_inline_handler plpython3_inline_handler
 #endif
 
 extern void _PG_init(void);
-extern Datum plpython_validator(PG_FUNCTION_ARGS);
-extern Datum plpython_call_handler(PG_FUNCTION_ARGS);
-extern Datum plpython_inline_handler(PG_FUNCTION_ARGS);
+extern Datum plpythonu_validator(PG_FUNCTION_ARGS);
+extern Datum plpythonu_call_handler(PG_FUNCTION_ARGS);
+extern Datum plpythonu_inline_handler(PG_FUNCTION_ARGS);
+
+//extern Datum plpython_validator(PG_FUNCTION_ARGS);
+//extern Datum plpython_call_handler(PG_FUNCTION_ARGS);
+//extern Datum plpython_inline_handler(PG_FUNCTION_ARGS);
 
 #if PY_MAJOR_VERSION < 3
-/* Define aliases plpython2_call_handler etc */
+/* Define aliases plpython2u_call_handler etc */
+extern Datum plpython2u_validator(PG_FUNCTION_ARGS);
+extern Datum plpython2u_call_handler(PG_FUNCTION_ARGS);
+extern Datum plpython2u_inline_handler(PG_FUNCTION_ARGS);
+
 extern Datum plpython2_validator(PG_FUNCTION_ARGS);
 extern Datum plpython2_call_handler(PG_FUNCTION_ARGS);
 extern Datum plpython2_inline_handler(PG_FUNCTION_ARGS);
@@ -53,14 +65,22 @@ extern Datum plpython2_inline_handler(PG_FUNCTION_ARGS);
 
 PG_MODULE_MAGIC;
 
-PG_FUNCTION_INFO_V1(plpython_validator);
-PG_FUNCTION_INFO_V1(plpython_call_handler);
-PG_FUNCTION_INFO_V1(plpython_inline_handler);
+PG_FUNCTION_INFO_V1(plpythonu_validator);
+PG_FUNCTION_INFO_V1(plpythonu_call_handler);
+PG_FUNCTION_INFO_V1(plpythonu_inline_handler);
+
+//PG_FUNCTION_INFO_V1(plpython_validator);
+//PG_FUNCTION_INFO_V1(plpython_call_handler);
+//PG_FUNCTION_INFO_V1(plpython_inline_handler);
 
 #if PY_MAJOR_VERSION < 3
-PG_FUNCTION_INFO_V1(plpython2_validator);
-PG_FUNCTION_INFO_V1(plpython2_call_handler);
-PG_FUNCTION_INFO_V1(plpython2_inline_handler);
+PG_FUNCTION_INFO_V1(plpython2u_validator);
+PG_FUNCTION_INFO_V1(plpython2u_call_handler);
+PG_FUNCTION_INFO_V1(plpython2u_inline_handler);
+
+//PG_FUNCTION_INFO_V1(plpython2_validator);
+//PG_FUNCTION_INFO_V1(plpython2_call_handler);
+//PG_FUNCTION_INFO_V1(plpython2_inline_handler);
 #endif
 
 
@@ -152,8 +172,15 @@ PLy_init_interp(void)
 		PLy_elog(ERROR, "could not initialize globals");
 }
 
+
 Datum
 plpython_validator(PG_FUNCTION_ARGS)
+{
+	PLy_elog(NOTICE, "BAD CALL plpython_validator");
+}
+
+Datum
+plpythonu_validator(PG_FUNCTION_ARGS)
 {
 	Oid			funcoid = PG_GETARG_OID(0);
 	HeapTuple	tuple;
@@ -185,12 +212,24 @@ plpython_validator(PG_FUNCTION_ARGS)
 Datum
 plpython2_validator(PG_FUNCTION_ARGS)
 {
-	return plpython_validator(fcinfo);
+	PLy_elog(NOTICE, "BAD CALL plpython2_validator");
+}
+
+Datum
+plpython2u_validator(PG_FUNCTION_ARGS)
+{
+	return plpythonu_validator(fcinfo);
 }
 #endif   /* PY_MAJOR_VERSION < 3 */
 
 Datum
 plpython_call_handler(PG_FUNCTION_ARGS)
+{
+	PLy_elog(NOTICE, "BAD CALL plpython_call_handler");
+}
+
+Datum
+plpythonu_call_handler(PG_FUNCTION_ARGS)
 {
 	Datum		retval;
 	PLyExecutionContext *exec_ctx;
@@ -257,12 +296,24 @@ plpython_call_handler(PG_FUNCTION_ARGS)
 Datum
 plpython2_call_handler(PG_FUNCTION_ARGS)
 {
-	return plpython_call_handler(fcinfo);
+	PLy_elog(NOTICE, "BAD CALL plpython2_call_handler");
+}
+
+Datum
+plpython2u_call_handler(PG_FUNCTION_ARGS)
+{
+	return plpythonu_call_handler(fcinfo);
 }
 #endif   /* PY_MAJOR_VERSION < 3 */
 
 Datum
 plpython_inline_handler(PG_FUNCTION_ARGS)
+{
+	PLy_elog(NOTICE, "BAD CALL plpython_inline_handler");
+}
+
+Datum
+plpythonu_inline_handler(PG_FUNCTION_ARGS)
 {
 	InlineCodeBlock *codeblock = (InlineCodeBlock *) DatumGetPointer(PG_GETARG_DATUM(0));
 	FunctionCallInfoData fake_fcinfo;
@@ -289,7 +340,7 @@ plpython_inline_handler(PG_FUNCTION_ARGS)
 	 * Push execution context onto stack.  It is important that this get
 	 * popped again, so avoid putting anything that could throw error between
 	 * here and the PG_TRY.  (plpython_inline_error_callback doesn't currently
-	 * need the stack entry, but for consistency with plpython_call_handler we
+	 * need the stack entry, but for consistency with plpythonu_call_handler we
 	 * do it in this order.)
 	 */
 	exec_ctx = PLy_push_execution_context();
@@ -331,7 +382,13 @@ plpython_inline_handler(PG_FUNCTION_ARGS)
 Datum
 plpython2_inline_handler(PG_FUNCTION_ARGS)
 {
-	return plpython_inline_handler(fcinfo);
+	PLy_elog(NOTICE, "BAD CALL plpython2_inline_handler");
+}
+
+Datum
+plpython2u_inline_handler(PG_FUNCTION_ARGS)
+{
+	return plpythonu_inline_handler(fcinfo);
 }
 #endif   /* PY_MAJOR_VERSION < 3 */
 
