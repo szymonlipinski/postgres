@@ -51,9 +51,9 @@ OBJS = \
 	plpy_typeio.o \
 	plpy_util.o
 
-DATA = $(NAME)u.control $(NAME)u--1.0.sql $(NAME)u--unpackaged--1.0.sql
+DATA = $(NAME)u.control $(NAME)u--1.0.sql $(NAME)u--unpackaged--1.0.sql $(NAME).control $(NAME)--1.0.sql $(NAME)--unpackaged--1.0.sql
 ifeq ($(python_majorversion),2)
-DATA += plpythonu.control plpythonu--1.0.sql plpythonu--unpackaged--1.0.sql
+DATA += plpythonu.control plpythonu--1.0.sql plpythonu--unpackaged--1.0.sql plpython.control plpython--1.0.sql plpython--unpackaged--1.0.sql
 endif
 
 
@@ -100,7 +100,8 @@ REGRESS = \
 	plpython_quote \
 	plpython_composite \
 	plpython_subtransaction \
-	plpython_drop
+	plpython_drop \
+	plpython_trusted
 
 REGRESS_PLPYTHON3_MANGLE := $(REGRESS)
 

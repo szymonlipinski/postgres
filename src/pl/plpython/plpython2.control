@@ -1,5 +1,5 @@
-# plpython extension
-comment = 'PL/Python trusted procedural language'
+# plpython2 extension
+comment = 'PL/Python2 trusted procedural language'
 default_version = '1.0'
 module_pathname = '$libdir/plpython2'
 relocatable = false

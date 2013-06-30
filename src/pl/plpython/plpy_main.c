@@ -38,9 +38,9 @@
 #define plpythonu_call_handler plpython3u_call_handler
 #define plpythonu_inline_handler plpython3u_inline_handler
 
-//#define plpython_validator plpython3_validator
-//#define plpython_call_handler plpython3_call_handler
-//#define plpython_inline_handler plpython3_inline_handler
+#define plpython_validator plpython3_validator
+#define plpython_call_handler plpython3_call_handler
+#define plpython_inline_handler plpython3_inline_handler
 #endif
 
 extern void _PG_init(void);
@@ -48,9 +48,9 @@ extern Datum plpythonu_validator(PG_FUNCTION_ARGS);
 extern Datum plpythonu_call_handler(PG_FUNCTION_ARGS);
 extern Datum plpythonu_inline_handler(PG_FUNCTION_ARGS);
 
-//extern Datum plpython_validator(PG_FUNCTION_ARGS);
-//extern Datum plpython_call_handler(PG_FUNCTION_ARGS);
-//extern Datum plpython_inline_handler(PG_FUNCTION_ARGS);
+extern Datum plpython_validator(PG_FUNCTION_ARGS);
+extern Datum plpython_call_handler(PG_FUNCTION_ARGS);
+extern Datum plpython_inline_handler(PG_FUNCTION_ARGS);
 
 #if PY_MAJOR_VERSION < 3
 /* Define aliases plpython2u_call_handler etc */
@@ -69,18 +69,18 @@ PG_FUNCTION_INFO_V1(plpythonu_validator);
 PG_FUNCTION_INFO_V1(plpythonu_call_handler);
 PG_FUNCTION_INFO_V1(plpythonu_inline_handler);
 
-//PG_FUNCTION_INFO_V1(plpython_validator);
-//PG_FUNCTION_INFO_V1(plpython_call_handler);
-//PG_FUNCTION_INFO_V1(plpython_inline_handler);
+PG_FUNCTION_INFO_V1(plpython_validator);
+PG_FUNCTION_INFO_V1(plpython_call_handler);
+PG_FUNCTION_INFO_V1(plpython_inline_handler);
 
 #if PY_MAJOR_VERSION < 3
 PG_FUNCTION_INFO_V1(plpython2u_validator);
 PG_FUNCTION_INFO_V1(plpython2u_call_handler);
 PG_FUNCTION_INFO_V1(plpython2u_inline_handler);
 
-//PG_FUNCTION_INFO_V1(plpython2_validator);
-//PG_FUNCTION_INFO_V1(plpython2_call_handler);
-//PG_FUNCTION_INFO_V1(plpython2_inline_handler);
+PG_FUNCTION_INFO_V1(plpython2_validator);
+PG_FUNCTION_INFO_V1(plpython2_call_handler);
+PG_FUNCTION_INFO_V1(plpython2_inline_handler);
 #endif
 
 
