@@ -85,21 +85,78 @@ SELECT * FROM test_type_conversion_int8(5000000000);
 SELECT * FROM test_type_conversion_int8(null);
 
 
-CREATE FUNCTION test_type_conversion_numeric(x numeric) RETURNS numeric AS $$
-# print just the class name, not the type, to avoid differences
-# between decimal and cdecimal
-plpy.info(x, x.__class__.__name__)
+CREATE FUNCTION test_type_conversion_numeric_tuple(
+  x numeric,
+  expected_sign int,
+  expected_digits int[],
+  expected_exponent int
+) RETURNS numeric AS $$
+
+t = x.as_tuple()
+
+plpy.info(t.sign == expected_sign)
+plpy.info(t.digits == tuple(expected_digits))
+plpy.info(t.exponent == expected_exponent)
+
 return x
 $$ LANGUAGE plpythonu;
 
-SELECT * FROM test_type_conversion_numeric(100);
-SELECT * FROM test_type_conversion_numeric(-100);
-SELECT * FROM test_type_conversion_numeric(100.0);
-SELECT * FROM test_type_conversion_numeric(100.00);
-SELECT * FROM test_type_conversion_numeric(5000000000.5);
-SELECT * FROM test_type_conversion_numeric(1234567890.0987654321);
-SELECT * FROM test_type_conversion_numeric(-1234567890.0987654321);
-SELECT * FROM test_type_conversion_numeric(null);
+
+SELECT * FROM test_type_conversion_numeric_tuple(100, 0, ARRAY[1, 0, 0], 0);
+SELECT * FROM test_type_conversion_numeric_tuple(-100, 1, ARRAY[1, 0, 0], 0);
+SELECT * FROM test_type_conversion_numeric_tuple(5000000000.5, 0, ARRAY[5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5], -1 );
+SELECT * FROM test_type_conversion_numeric_tuple(1234567890.0987654321, 0, ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1], -10);
+SELECT * FROM test_type_conversion_numeric_tuple(-1234567890.0987654321, 1, ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 9, 8, 7, 6, 5, 4, 3, 2, 1], -10);
+
+
+CREATE FUNCTION test_type_conversion_numeric_string(
+  x numeric,
+  expected_string text
+) RETURNS numeric AS $$
+plpy.info(str(x) == expected_string)
+return x
+$$ LANGUAGE plpythonu;
+
+SELECT * FROM test_type_conversion_numeric_string(100, '100');
+SELECT * FROM test_type_conversion_numeric_string(-100, '-100');
+SELECT * FROM test_type_conversion_numeric_string(5000000000.5, '5000000000.5');
+SELECT * FROM test_type_conversion_numeric_string(1234567890.0987654321, '1234567890.0987654321');
+SELECT * FROM test_type_conversion_numeric_string(-1234567890.0987654321, '-1234567890.0987654321');
+
+
+CREATE FUNCTION test_type_conversion_numeric_int(
+  x numeric,
+  expected_value int
+) RETURNS numeric AS $$
+plpy.info(int(x) == expected_value)
+return x
+$$ LANGUAGE plpythonu;
+
+
+SELECT * FROM test_type_conversion_numeric_int(100, 100);
+SELECT * FROM test_type_conversion_numeric_int(-100, -100);
+
+
+CREATE FUNCTION test_type_conversion_numeric_float(
+  x numeric,
+  expected_float float,
+  epsilon float
+) RETURNS numeric AS $$
+plpy.info( abs(float(x) - expected_float) <= epsilon )
+return x
+$$ LANGUAGE plpythonu;
+
+
+SELECT * FROM test_type_conversion_numeric_float(5000000000.5, 5000000000.5, 0);
+SELECT * FROM test_type_conversion_numeric_float(1234567890.0987654321, 1234567890.0987654321, 0.00001);
+SELECT * FROM test_type_conversion_numeric_float(-1234567890.0987654321, -1234567890.0987654321, 0.00001);
+
+
+CREATE FUNCTION test_type_conversion_numeric_null(x numeric) RETURNS numeric AS $$
+return x
+$$ LANGUAGE plpythonu;
+
+SELECT * FROM test_type_conversion_numeric_null(null);
 
 
 CREATE FUNCTION test_type_conversion_float4(x float4) RETURNS float4 AS $$
