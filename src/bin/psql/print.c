@@ -2483,18 +2483,23 @@ static void
 print_asciidoc_text(const printTableContent *cont, FILE *fout)
 {
 	bool		opt_tuples_only = cont->opt->tuples_only;
-	unsigned short opt_border = cont->opt->border;
-	const char *opt_table_attr = cont->opt->tableAttr;
 	unsigned int i;
 	const char *const * ptr;
-
-  int max_length = 80;
 
 	if (cancel_pressed)
 		return;
 
 	if (cont->opt->start_table)
 	{
+		/* print title */
+		if (!opt_tuples_only && cont->title)
+		{
+      fputs(".", fout);
+			fputs(cont->title, fout);
+      fputs("\n", fout);
+		}
+    
+    /* print table [] header definition */
 		fprintf(fout, "[options=\"header\",cols=\"");
     for(i = 0; i < cont->ncolumns; i++) {
       if (i != 0) fputs(",", fout);
@@ -2502,12 +2507,6 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
     }
     fprintf(fout, "\"]\n");
 		fprintf(fout, "|====\n");
-
-		/* print title */
-		if (!opt_tuples_only && cont->title)
-		{
-			//asciidoc_escaped_print(cont->title, fout);
-		}
 
 		/* print headers */
 		if (!opt_tuples_only)
@@ -2529,9 +2528,9 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		{
 			if (cancel_pressed)
 				break;
-		}
-
-		fprintf(fout, "| ");
+    }
+		
+    fprintf(fout, "| ");
 
 		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
 			fputs(" ", fout);
@@ -2542,6 +2541,8 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 
 		if ((i + 1) % cont->ncolumns == 0)
 			fputs("\n", fout);
+		
+
 	}
   
   fprintf(fout, "|====\n");
@@ -2567,6 +2568,8 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 	}
 }
 
+// TODO add support for cont->opt->border
+// TODO add support for additional options
 
 static void
 print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
@@ -2583,18 +2586,18 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 
 	if (cont->opt->start_table)
 	{
-		fprintf(fout, "<table border=\"%d\"", opt_border);
-		if (opt_table_attr)
-			fprintf(fout, " %s", opt_table_attr);
-		fputs(">\n", fout);
-
 		/* print title */
 		if (!opt_tuples_only && cont->title)
 		{
-			fputs("  <caption>", fout);
-			html_escaped_print(cont->title, fout);
-			fputs("</caption>\n", fout);
+      fputs(".", fout);
+			fputs(cont->title, fout);
+      fputs("\n", fout);
 		}
+    
+    /* print table [] header definition */
+	  fprintf(fout, "[cols=\"h,literal\"]\n");
+		fprintf(fout, "|====\n");
+
 	}
 
 	/* print records */
@@ -2606,45 +2609,44 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 				break;
 			if (!opt_tuples_only)
 				fprintf(fout,
-						"\n  <tr><td colspan=\"2\" align=\"center\">Record %lu</td></tr>\n",
+						"2+^| Record %lu\n",
 						record++);
 			else
-				fputs("\n  <tr><td colspan=\"2\">&nbsp;</td></tr>\n", fout);
+				fputs("2| \n", fout);
 		}
-		fputs("  <tr valign=\"top\">\n"
-			  "    <th>", fout);
-		html_escaped_print(cont->headers[i % cont->ncolumns], fout);
-		fputs("</th>\n", fout);
+    
+    fputs("|+++", fout);
+		fputs(cont->headers[i % cont->ncolumns], fout);
+    fputs("+++", fout);
 
-		fprintf(fout, "    <td align=\"%s\">", cont->aligns[i % cont->ncolumns] == 'r' ? "right" : "left");
+		fprintf(fout, " %s|", cont->aligns[i % cont->ncolumns] == 'r' ? ">" : "<");
 		/* is string only whitespace? */
 		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
-			fputs("&nbsp; ", fout);
+			fputs(" ", fout);
 		else
-			html_escaped_print(*ptr, fout);
+			fputs(*ptr, fout);
 
-		fputs("</td>\n  </tr>\n", fout);
+		fputs("\n", fout);
 	}
 
-	if (cont->opt->stop_table)
+	fprintf(fout, "|====\n");
+	
+  if (cont->opt->stop_table)
 	{
-		fputs("</table>\n", fout);
-
 		/* print footers */
 		if (!opt_tuples_only && cont->footers != NULL && !cancel_pressed)
 		{
 			printTableFooter *f;
 
-			fputs("<p>", fout);
+			fputs("\n....\n", fout);
 			for (f = cont->footers; f; f = f->next)
 			{
-				html_escaped_print(f->data, fout);
-				fputs("<br />\n", fout);
+				fputs(f->data, fout);
+				fputs("\n", fout);
 			}
-			fputs("</p>", fout);
+			fputs("....\n", fout);
 		}
 
-		fputc('\n', fout);
 	}
 }
 
