@@ -2480,35 +2480,6 @@ print_troff_ms_vertical(const printTableContent *cont, FILE *fout)
 /*********************/
 
 static void
-asciidoc_escaped_print(const char *in, FILE *fout)
-{
-	const char *p;
-	bool		leading_space = true;
-
-	for (p = in; *p; p++)
-	{
-		switch (*p)
-		{
-			//case '&':
-		//		fputs("&amp;", fout);
-		//		break;
-			//case '':
-				/* protect leading space, for EXPLAIN output */
-				//if (leading_space)
-				//	fputs("&nbsp;", fout);
-				//else
-				//	fputs(" ", fout);
-			//	break;
-			default:
-				fputc(*p, fout);
-		}
-		if (*p != ' ')
-			leading_space = false;
-	}
-}
-
-
-static void
 print_asciidoc_text(const printTableContent *cont, FILE *fout)
 {
 	bool		opt_tuples_only = cont->opt->tuples_only;
@@ -2535,7 +2506,7 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		/* print title */
 		if (!opt_tuples_only && cont->title)
 		{
-			//html_escaped_print(cont->title, fout);
+			//asciidoc_escaped_print(cont->title, fout);
 		}
 
 		/* print headers */
@@ -2543,9 +2514,9 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		{
 			for (ptr = cont->headers; *ptr; ptr++)
 			{
-        fputs("| ", fout);
-				asciidoc_escaped_print(*ptr, fout);
-        fputs(" ", fout);
+        fputs("^| +++", fout);
+				fputs(*ptr, fout);
+        fputs("+++ ", fout);
 			}
 			fputs("\n", fout);
 		}
@@ -2565,7 +2536,7 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
 			fputs(" ", fout);
 		else
-			asciidoc_escaped_print(*ptr, fout);
+			fputs(*ptr, fout);
 
 		fputs(" ", fout);
 
@@ -2584,13 +2555,13 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		{
 			printTableFooter *f;
 
-			fputs("\n", fout);
+			fputs("\n....\n", fout);
 			for (f = footers; f; f = f->next)
 			{
-				asciidoc_escaped_print(f->data, fout);
+				fputs(f->data, fout);
 				fputs("\n", fout);
 			}
-			fputs("\n", fout);
+			fputs("....\n", fout);
 		}
 
 	}
