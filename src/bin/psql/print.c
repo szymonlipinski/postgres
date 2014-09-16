@@ -2475,6 +2475,207 @@ print_troff_ms_vertical(const printTableContent *cont, FILE *fout)
 	}
 }
 
+/*********************/
+/* ASCIIDOC **********/
+/*********************/
+
+static void
+asciidoc_escaped_print(const char *in, FILE *fout)
+{
+	const char *p;
+	bool		leading_space = true;
+
+	for (p = in; *p; p++)
+	{
+		switch (*p)
+		{
+			//case '&':
+		//		fputs("&amp;", fout);
+		//		break;
+			//case '':
+				/* protect leading space, for EXPLAIN output */
+				//if (leading_space)
+				//	fputs("&nbsp;", fout);
+				//else
+				//	fputs(" ", fout);
+			//	break;
+			default:
+				fputc(*p, fout);
+		}
+		if (*p != ' ')
+			leading_space = false;
+	}
+}
+
+
+static void
+print_asciidoc_text(const printTableContent *cont, FILE *fout)
+{
+	bool		opt_tuples_only = cont->opt->tuples_only;
+	unsigned short opt_border = cont->opt->border;
+	const char *opt_table_attr = cont->opt->tableAttr;
+	unsigned int i;
+	const char *const * ptr;
+
+  int max_length = 80;
+
+	if (cancel_pressed)
+		return;
+
+	if (cont->opt->start_table)
+	{
+		fprintf(fout, "[options=\"header\",cols=\"");
+    for(i = 0; i < cont->ncolumns; i++) {
+      if (i != 0) fputs(",", fout);
+		  fprintf(fout, "%s", cont->aligns[(i) % cont->ncolumns] == 'r' ? ">literal" : "<literal");
+    }
+    fprintf(fout, "\"]\n");
+		fprintf(fout, "|====\n");
+
+		/* print title */
+		if (!opt_tuples_only && cont->title)
+		{
+			//html_escaped_print(cont->title, fout);
+		}
+
+		/* print headers */
+		if (!opt_tuples_only)
+		{
+			for (ptr = cont->headers; *ptr; ptr++)
+			{
+        fputs("| ", fout);
+				asciidoc_escaped_print(*ptr, fout);
+        fputs(" ", fout);
+			}
+			fputs("\n", fout);
+		}
+	}
+
+	/* print cells */
+	for (i = 0, ptr = cont->cells; *ptr; i++, ptr++)
+	{
+		if (i % cont->ncolumns == 0)
+		{
+			if (cancel_pressed)
+				break;
+		}
+
+		fprintf(fout, "| ");
+
+		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
+			fputs(" ", fout);
+		else
+			asciidoc_escaped_print(*ptr, fout);
+
+		fputs(" ", fout);
+
+		if ((i + 1) % cont->ncolumns == 0)
+			fputs("\n", fout);
+	}
+  
+  fprintf(fout, "|====\n");
+
+	if (cont->opt->stop_table)
+	{
+		printTableFooter *footers = footers_with_default(cont);
+
+		/* print footers */
+		if (!opt_tuples_only && footers != NULL && !cancel_pressed)
+		{
+			printTableFooter *f;
+
+			fputs("\n", fout);
+			for (f = footers; f; f = f->next)
+			{
+				asciidoc_escaped_print(f->data, fout);
+				fputs("\n", fout);
+			}
+			fputs("\n", fout);
+		}
+
+	}
+}
+
+
+static void
+print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
+{
+	bool		opt_tuples_only = cont->opt->tuples_only;
+	unsigned short opt_border = cont->opt->border;
+	const char *opt_table_attr = cont->opt->tableAttr;
+	unsigned long record = cont->opt->prior_records + 1;
+	unsigned int i;
+	const char *const * ptr;
+
+	if (cancel_pressed)
+		return;
+
+	if (cont->opt->start_table)
+	{
+		fprintf(fout, "<table border=\"%d\"", opt_border);
+		if (opt_table_attr)
+			fprintf(fout, " %s", opt_table_attr);
+		fputs(">\n", fout);
+
+		/* print title */
+		if (!opt_tuples_only && cont->title)
+		{
+			fputs("  <caption>", fout);
+			html_escaped_print(cont->title, fout);
+			fputs("</caption>\n", fout);
+		}
+	}
+
+	/* print records */
+	for (i = 0, ptr = cont->cells; *ptr; i++, ptr++)
+	{
+		if (i % cont->ncolumns == 0)
+		{
+			if (cancel_pressed)
+				break;
+			if (!opt_tuples_only)
+				fprintf(fout,
+						"\n  <tr><td colspan=\"2\" align=\"center\">Record %lu</td></tr>\n",
+						record++);
+			else
+				fputs("\n  <tr><td colspan=\"2\">&nbsp;</td></tr>\n", fout);
+		}
+		fputs("  <tr valign=\"top\">\n"
+			  "    <th>", fout);
+		html_escaped_print(cont->headers[i % cont->ncolumns], fout);
+		fputs("</th>\n", fout);
+
+		fprintf(fout, "    <td align=\"%s\">", cont->aligns[i % cont->ncolumns] == 'r' ? "right" : "left");
+		/* is string only whitespace? */
+		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
+			fputs("&nbsp; ", fout);
+		else
+			html_escaped_print(*ptr, fout);
+
+		fputs("</td>\n  </tr>\n", fout);
+	}
+
+	if (cont->opt->stop_table)
+	{
+		fputs("</table>\n", fout);
+
+		/* print footers */
+		if (!opt_tuples_only && cont->footers != NULL && !cancel_pressed)
+		{
+			printTableFooter *f;
+
+			fputs("<p>", fout);
+			for (f = cont->footers; f; f = f->next)
+			{
+				html_escaped_print(f->data, fout);
+				fputs("<br />\n", fout);
+			}
+			fputs("</p>", fout);
+		}
+
+		fputc('\n', fout);
+	}
+}
 
 /********************************/
 /* Public functions		*/
@@ -2872,6 +3073,12 @@ printTable(const printTableContent *cont, FILE *fout, FILE *flog)
 			else
 				print_troff_ms_text(cont, fout);
 			break;
+    case PRINT_ASCIIDOC:
+      if (cont->opt->expanded == 1)
+        print_asciidoc_vertical(cont, fout);
+      else
+        print_asciidoc_text(cont, fout);
+      break;
 		default:
 			fprintf(stderr, _("invalid output format (internal error): %d"),
 					cont->opt->format);
@@ -3100,3 +3307,5 @@ strlen_max_width(unsigned char *str, int *target_width, int encoding)
 
 	return str - start;
 }
+
+
