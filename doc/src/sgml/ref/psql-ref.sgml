@@ -2092,8 +2092,8 @@ lo_import 152801
           <literal>aligned</literal>, <literal>wrapped</literal>,
           <literal>html</literal>,
           <literal>latex</literal> (uses <literal>tabular</literal>),
-          <literal>latex-longtable</literal>, or
-          <literal>troff-ms</literal>.
+          <literal>latex-longtable</literal>,
+          <literal>troff-ms</literal>, or <literal>asciidoc</literal>.
           Unique abbreviations are allowed.  (That would mean one letter
           is enough.)
           </para>
@@ -2120,7 +2120,8 @@ lo_import 152801
 
           <para>
           The <literal>html</>, <literal>latex</>,
-          <literal>latex-longtable</literal>, and <literal>troff-ms</>
+          <literal>latex-longtable</literal>, <literal>troff-ms</>,
+          and <literal>asciidoc</>
           formats put out tables that are intended to
           be included in documents using the respective mark-up
           language. They are not complete documents! This might not be
