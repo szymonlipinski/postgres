@@ -2483,6 +2483,7 @@ static void
 print_asciidoc_text(const printTableContent *cont, FILE *fout)
 {
 	bool		opt_tuples_only = cont->opt->tuples_only;
+	unsigned short opt_border = cont->opt->border;
 	unsigned int i;
 	const char *const * ptr;
 
@@ -2500,13 +2501,25 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		}
     
     /* print table [] header definition */
-		fprintf(fout, "[options=\"header\",cols=\"");
+		fputs("[options=\"header\",cols=\"", fout);
     for(i = 0; i < cont->ncolumns; i++) {
       if (i != 0) fputs(",", fout);
 		  fprintf(fout, "%s", cont->aligns[(i) % cont->ncolumns] == 'r' ? ">literal" : "<literal");
     }
-    fprintf(fout, "\"]\n");
-		fprintf(fout, "|====\n");
+    fputs("\"", fout);
+    switch (opt_border) {
+      case 0:
+        fputs(",frame=\"none\",grid=\"none\"", fout);
+        break;
+      case 1:
+        fputs(",frame=\"none\"", fout);
+        break;
+      case 2:
+        fputs(",frame=\"all\",grid=\"all\"", fout);
+        break;
+    }
+    fputs("]\n", fout);
+		fputs("|====\n", fout);
 
 		/* print headers */
 		if (!opt_tuples_only)
@@ -2541,11 +2554,10 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 
 		if ((i + 1) % cont->ncolumns == 0)
 			fputs("\n", fout);
-		
 
 	}
   
-  fprintf(fout, "|====\n");
+  fputs("|====\n", fout);
 
 	if (cont->opt->stop_table)
 	{
@@ -2568,15 +2580,11 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 	}
 }
 
-// TODO add support for cont->opt->border
-// TODO add support for additional options
-
 static void
 print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 {
 	bool		opt_tuples_only = cont->opt->tuples_only;
 	unsigned short opt_border = cont->opt->border;
-	const char *opt_table_attr = cont->opt->tableAttr;
 	unsigned long record = cont->opt->prior_records + 1;
 	unsigned int i;
 	const char *const * ptr;
@@ -2595,8 +2603,20 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 		}
     
     /* print table [] header definition */
-	  fprintf(fout, "[cols=\"h,literal\"]\n");
-		fprintf(fout, "|====\n");
+	  fputs("[cols=\"h,literal\"", fout);
+    switch (opt_border) {
+      case 0:
+        fputs(",frame=\"none\",grid=\"none\"", fout);
+        break;
+      case 1:
+        fputs(",frame=\"none\"", fout);
+        break;
+      case 2:
+        fputs(",frame=\"all\",grid=\"all\"", fout);
+        break;
+    }
+    fputs("]\n", fout);
+    fputs("|====\n", fout);
 
 	}
 
@@ -2629,7 +2649,7 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 		fputs("\n", fout);
 	}
 
-	fprintf(fout, "|====\n");
+	fputs("|====\n", fout);
 	
   if (cont->opt->stop_table)
 	{
