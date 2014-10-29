@@ -2543,8 +2543,8 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		{
 			for (ptr = cont->headers; *ptr; ptr++)
 			{
-        fputs("^| ", fout);
-				fputs(*ptr, fout);
+        fputs("^l| ", fout);
+        asciidoc_escaped_print(*ptr, fout);
         fputs(" ", fout);
 			}
 			fputs("\n", fout);
@@ -2652,9 +2652,9 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 				fputs("2| \n", fout);
 		}
     
-    fputs("|+++", fout);
-		fputs(cont->headers[i % cont->ncolumns], fout);
-    fputs("+++", fout);
+    fputs("<|", fout);
+    asciidoc_escaped_print(cont->headers[i % cont->ncolumns], fout);
+    fputs(" ", fout);
 
 		fprintf(fout, " %s|", cont->aligns[i % cont->ncolumns] == 'r' ? ">" : "<");
 		/* is string only whitespace? */
