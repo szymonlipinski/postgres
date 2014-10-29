@@ -2480,6 +2480,23 @@ print_troff_ms_vertical(const printTableContent *cont, FILE *fout)
 /*********************/
 
 static void
+asciidoc_escaped_print(const char *in, FILE *fout)
+{
+  const char *p;
+  for (p = in; *p; p++)
+  {
+    switch(*p)
+    {
+      case '|':
+        fputs("\\|", fout);
+        break;
+      default:
+        fputc(*p, fout);
+    }
+  }
+}
+
+static void
 print_asciidoc_text(const printTableContent *cont, FILE *fout)
 {
 	bool		opt_tuples_only = cont->opt->tuples_only;
@@ -2548,7 +2565,7 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
 			fputs(" ", fout);
 		else
-			fputs(*ptr, fout);
+			asciidoc_escaped_print(*ptr, fout);
 
 		fputs(" ", fout);
 
@@ -2644,7 +2661,7 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 		if ((*ptr)[strspn(*ptr, " \t")] == '\0')
 			fputs(" ", fout);
 		else
-			fputs(*ptr, fout);
+			asciidoc_escaped_print(*ptr, fout);
 
 		fputs("\n", fout);
 	}
