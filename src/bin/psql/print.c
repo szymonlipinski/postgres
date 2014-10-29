@@ -2521,7 +2521,7 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		fputs("[options=\"header\",cols=\"", fout);
     for(i = 0; i < cont->ncolumns; i++) {
       if (i != 0) fputs(",", fout);
-		  fprintf(fout, "%s", cont->aligns[(i) % cont->ncolumns] == 'r' ? ">literal" : "<literal");
+		  fprintf(fout, "%s", cont->aligns[(i) % cont->ncolumns] == 'r' ? ">l" : "<l");
     }
     fputs("\"", fout);
     switch (opt_border) {
@@ -2543,9 +2543,9 @@ print_asciidoc_text(const printTableContent *cont, FILE *fout)
 		{
 			for (ptr = cont->headers; *ptr; ptr++)
 			{
-        fputs("^| +++", fout);
+        fputs("^| ", fout);
 				fputs(*ptr, fout);
-        fputs("+++ ", fout);
+        fputs(" ", fout);
 			}
 			fputs("\n", fout);
 		}
@@ -2620,7 +2620,7 @@ print_asciidoc_vertical(const printTableContent *cont, FILE *fout)
 		}
     
     /* print table [] header definition */
-	  fputs("[cols=\"h,literal\"", fout);
+	  fputs("[cols=\"h,l\"", fout);
     switch (opt_border) {
       case 0:
         fputs(",frame=\"none\",grid=\"none\"", fout);
