@@ -73,11 +73,11 @@ static LWLockTranche MainLWLockTranche;
 
 /*
  * We use this structure to keep track of locked LWLocks for release
- * during error recovery.  The maximum size could be determined at runtime
- * if necessary, but it seems unlikely that more than a few locks could
- * ever be held simultaneously.
+ * during error recovery.  Normally, only a few will be held at once, but
+ * occasionally the number can be much higher; for example, the pg_buffercache
+ * extension locks all buffer partitions simultaneously.
  */
-#define MAX_SIMUL_LWLOCKS	100
+#define MAX_SIMUL_LWLOCKS	200
 
 static int	num_held_lwlocks = 0;
 static LWLock *held_lwlocks[MAX_SIMUL_LWLOCKS];
@@ -997,13 +997,17 @@ LWLockWaitForVar(LWLock *lock, uint64 *valptr, uint64 oldval, uint64 *newval)
 		 */
 		proc->lwWaiting = true;
 		proc->lwWaitMode = LW_WAIT_UNTIL_FREE;
-		proc->lwWaitLink = NULL;
-
 		/* waiters are added to the front of the queue */
 		proc->lwWaitLink = lock->head;
 		if (lock->head == NULL)
 			lock->tail = proc;
 		lock->head = proc;
+
+		/*
+		 * Set releaseOK, to make sure we get woken up as soon as the lock is
+		 * released.
+		 */
+		lock->releaseOK = true;
 
 		/* Can release the mutex now */
 		SpinLockRelease(&lock->mutex);

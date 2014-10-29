@@ -136,7 +136,7 @@ extern PGDLLIMPORT LWLockPadded *MainLWLockArray;
  */
 
 /* Number of partitions of the shared buffer mapping hashtable */
-#define NUM_BUFFER_PARTITIONS  16
+#define NUM_BUFFER_PARTITIONS  128
 
 /* Number of partitions the shared lock tables are divided into */
 #define LOG2_NUM_LOCK_PARTITIONS  4
@@ -207,8 +207,8 @@ extern LWLock *LWLockAssign(void);
  * registration in the main shared memory segment wouldn't work for that case.
  */
 extern int	LWLockNewTrancheId(void);
-extern void LWLockRegisterTranche(int, LWLockTranche *);
-extern void LWLockInitialize(LWLock *, int tranche_id);
+extern void LWLockRegisterTranche(int tranche_id, LWLockTranche *tranche);
+extern void LWLockInitialize(LWLock *lock, int tranche_id);
 
 /*
  * Prior to PostgreSQL 9.4, we used an enum type called LWLockId to refer

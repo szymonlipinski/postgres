@@ -2258,11 +2258,7 @@ static struct config_int ConfigureNamesInt[] =
 
 	{
 		{"effective_io_concurrency",
-#ifdef USE_PREFETCH
 			PGC_USERSET,
-#else
-			PGC_INTERNAL,
-#endif
 			RESOURCES_ASYNCHRONOUS,
 			gettext_noop("Number of simultaneous requests that can be handled efficiently by the disk subsystem."),
 			gettext_noop("For RAID arrays, this should be approximately the number of drive spindles in the array.")
@@ -7734,7 +7730,7 @@ GetConfigOptionByNum(int varnum, const char **values, bool *noshow)
 				values[2] = "min";
 				break;
 			default:
-				values[2] = "";
+				values[2] = NULL;
 				break;
 		}
 	}
