@@ -44,8 +44,11 @@ extern char *gets_fromFile(FILE *source);
 extern void initializeInput(int flags);
 
 extern bool printHistory(const char *fname, unsigned short int pager);
+extern bool print_history_with_lines(const char *fname, unsigned short int pager);
 
 extern void pg_append_history(const char *s, PQExpBuffer history_buf);
 extern void pg_send_history(PQExpBuffer history_buf);
+
+extern char * get_line_from_history(int lineno);
 
 #endif   /* INPUT_H */

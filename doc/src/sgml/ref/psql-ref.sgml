@@ -2654,7 +2654,32 @@ lo_import 152801
         </listitem>
       </varlistentry>
 
+      <varlistentry>
+        <term><literal>\# [ <replaceable class="parameter">line</replaceable> ]</literal></term>
+        <listitem>
+        <para>
+        Print <application>psql</application>'s command line history with line numbers.
+        If <replaceable class="parameter">lineno</replaceable> is given,
+        the query from the history line number is executed.
+        This command is not available
+        if <application>psql</application> was built
+        without <application>Readline</application> support.
+        </para>
+        </listitem>
+      </varlistentry>
 
+      <varlistentry>
+        <term><literal>\#e <replaceable class="parameter">line</replaceable> </literal></term>
+        <listitem>
+        <para>
+        The query from the line of the <application>psql</application>'s command line history
+        is edited with an external editor.
+        This command is not available
+        if <application>psql</application> was built
+        without <application>Readline</application> support.
+        </para>
+        </listitem>
+      </varlistentry>
       <varlistentry>
         <term><literal>\set [ <replaceable class="parameter">name</replaceable> [ <replaceable class="parameter">value</replaceable> [ ... ] ] ]</literal></term>
 

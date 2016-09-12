@@ -197,6 +197,9 @@ slashUsage(unsigned short int pager)
 	fprintf(output, _("  \\r                     reset (clear) the query buffer\n"));
 #ifdef USE_READLINE
 	fprintf(output, _("  \\s [FILE]              display history or save it to file\n"));
+	fprintf(output, _("  \\#                     display history with line numbers\n"));
+	fprintf(output, _("  \\# [LINE]              execute the query from the history line\n"));
+	fprintf(output, _("  \\#e [LINE]             edit the query from the history line with external editor\n"));
 #endif
 	fprintf(output, _("  \\w FILE                write query buffer to file\n"));
 	fprintf(output, "\n");

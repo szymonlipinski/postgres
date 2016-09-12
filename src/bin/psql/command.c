@@ -1274,6 +1274,61 @@ exec_command(const char *cmd,
 			putchar('\n');
 		free(fname);
 	}
+    /* 
+     * \#   - shows the history like \s but with lines
+     * \#2  - runs the 2nd query from the list
+     * \#e2 - opens the 2nd query in the $EDITOR
+     */
+	else if (cmd[0] == '#')
+	{
+        if (cmd[1] == '\0') 
+        {
+            //char	   *fname = psql_scan_slash_option(scan_state,
+            //                                           OT_NORMAL, NULL, true);
+            
+            //expand_tilde(&fname);
+            success = print_history_with_lines(NULL, pset.popt.topt.pager);
+            //if (!fname)
+            putchar('\n');
+            //free(fname);
+        }
+        else if (cmd[1] == 'e')
+        {
+        }
+        else
+        {
+                int lineno;
+                char *query;
+                char *number = pg_malloc(strlen(cmd));
+                strncpy(number, cmd + 1, strlen(cmd));
+                
+
+                psql_error("%d\n", strlen(cmd)); 
+                psql_error("%d\n", strlen(number)); 
+                psql_error("%s\n", cmd); 
+                psql_error("%s\n", cmd+1);
+                psql_error("%s\n", number);
+
+                if (strspn(number, "0123456789") == strlen(number))
+                {
+                    lineno = atoi(number);
+                    query = get_line_from_history(lineno-1);
+                    if (query)
+                    {
+                        SendQuery(query);
+                    }
+                    else
+                    {
+                        psql_error("Couldn't find a history line %d\n", lineno);
+                    }
+                }
+                else
+                {
+                    psql_error("Provide number after \\#. Try \\? for help\n");
+                }
+                pg_free(number);
+        }
+	}
 
 	/* \set -- generalized set variable/option command */
 	else if (strcmp(cmd, "set") == 0)

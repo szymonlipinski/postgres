@@ -476,6 +476,28 @@ saveHistory(char *fname, int max_lines)
 #endif
 
 
+/*
+ * Returns the line from the history. Lines are zero based.
+ */
+char *
+get_line_from_history(int lineno)
+{
+    char   *query = NULL;
+    int    line_counter=0;
+
+	BEGIN_ITERATE_HISTORY(cur_hist);
+	{
+		if (line_counter == lineno) {
+            query = pg_malloc(strlen(cur_hist->line) + 1);
+            strcpy(query, cur_hist->line);
+        }
+        line_counter ++;
+	}
+    END_ITERATE_HISTORY();
+    
+    return query;
+}
+
 
 /*
  * Print history to the specified file, or to the console if fname is NULL
@@ -486,6 +508,54 @@ saveHistory(char *fname, int max_lines)
  * (preferring to encode its output) and may fail outright when the target
  * file is specified as /dev/tty.
  */
+bool
+print_history_with_lines(const char *fname, unsigned short int pager)
+{
+#ifdef USE_READLINE
+	FILE	   *output;
+	bool		is_pager;
+    int         line_counter = 0;
+
+	if (!useHistory)
+		return false;
+
+	if (fname == NULL)
+	{
+		/* use pager, if enabled, when printing to console */
+		output = PageOutput(INT_MAX, pager ? &(pset.popt.topt) : NULL);
+		is_pager = true;
+	}
+	else
+	{
+		output = fopen(fname, "w");
+		if (output == NULL)
+		{
+			psql_error("could not save history to file \"%s\": %s\n",
+					   fname, strerror(errno));
+			return false;
+		}
+		is_pager = false;
+	}
+
+	BEGIN_ITERATE_HISTORY(cur_hist);
+	{
+        line_counter ++;
+		fprintf(output, "%d %s\n", line_counter, cur_hist->line);
+	}
+	END_ITERATE_HISTORY();
+
+	if (is_pager)
+		ClosePager(output);
+	else
+		fclose(output);
+
+	return true;
+#else
+	psql_error("history is not supported by this installation\n");
+	return false;
+#endif
+}
+
 bool
 printHistory(const char *fname, unsigned short int pager)
 {
